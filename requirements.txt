@@ -1,14 +1,17 @@
 # Python 3.11 recommended (see README and doc/guide.md).
 # Install PyTorch 2.1 with CUDA from https://pytorch.org/get-started/locally/ BEFORE pip install -r requirements.txt
 
-diffusers>=0.21.0,<1.0.0
-transformers>=4.35.0,<5.0.0
+# diffusers>=0.36 needs torch.xpu (PyTorch newer than 2.1); keep upper bound for torch 2.1 + CUDA stacks.
+diffusers>=0.21.0,<0.36.0
+# transformers>=4.49 dropped the torch<2.2 fallback (_register_pytree_node); torch 2.1.x needs <4.49.
+transformers>=4.35.0,<4.49.0
 accelerate>=0.24.0
 safetensors>=0.4.0
 mediapy>=0.1.0
 ipywidgets>=8.0.0
 einops>=0.7.0
-numpy>=1.24.0,<3.0.0
+# PyTorch 2.1 wheels are built against NumPy 1.x; NumPy 2.x breaks import (see numpy release notes).
+numpy>=1.24.0,<2.0.0
 tqdm>=4.65.0
 Pillow>=10.0.0
 gradio>=4.0.0,<6.0.0

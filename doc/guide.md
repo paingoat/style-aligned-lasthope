@@ -85,7 +85,7 @@ pip install -U pip
 pip install -r requirements.txt
 ```
 
-**Ghi chú Diffusers:** README nêu *Diffusers 0.16* theo thời điểm cũ; pipeline **SDXL** cần **diffusers ≥ 0.21**. File `requirements.txt` đã phản ánh điều đó.
+**Ghi chú Diffusers / NumPy:** README nêu *Diffusers 0.16* theo thời điểm cũ; pipeline **SDXL** cần **diffusers từ 0.21 trở lên**. Với **PyTorch 2.1**, `requirements.txt` giữ **diffusers dưới 0.36** (từ 0.36, thư viện gọi `torch.xpu` lúc import; PyTorch 2.1 không có module đó) và **NumPy 1.x** (tránh NumPy 2.x vì wheel PyTorch 2.1 tương thích NumPy 1).
 
 ---
 
@@ -103,7 +103,7 @@ pip install -r requirements.txt
 | Thư mục “gốc” config + cache HF (tùy chọn thay cho chỉ hub) | `HF_HOME`                                |
 
 
-**Lưu ý:** tên `**HF_CACHE` không phải** biến chuẩn mà `huggingface_hub` đọc. Nếu bạn muốn một key trong file `.env` cho dễ nhớ, hãy đặt **đúng tên chuẩn** trong `.env` (ví dụ `HF_HUB_CACHE=...`) để khi `source` file, mọi thứ hoạt động ngay.
+**Lưu ý:** tên `HF_CACHE` không phải biến chuẩn mà `huggingface_hub` đọc. Nếu bạn muốn một key trong file `.env` cho dễ nhớ, hãy đặt **đúng tên chuẩn** trong `.env` (ví dụ `HF_HUB_CACHE=...`) để khi `source` file, mọi thứ hoạt động ngay.
 
 Ví dụ file `.env` đặt trong thư mục repo (và **đưa `.env` vào `.gitignore`** cá nhân để không commit token):
 
@@ -219,6 +219,9 @@ Các file `demo_stylealigned_controlnet.py`, `demo_stylealigned_multidiffusion.p
 | Hiện tượng                                       | Hướng xử lý                                                                                                                         |
 | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `torch.cuda.is_available()` là `False`           | Cài lại PyTorch đúng bản **CUDA**; cập nhật driver NVIDIA.                                                                          |
+| Cảnh báo / lỗi NumPy 2 với PyTorch 2.1 (`compiled using NumPy 1.x`, `_ARRAY_API`) | `pip install "numpy<2"` rồi khởi động lại kernel; dùng `requirements.txt` mới nhất (đã ghim NumPy 1.x).                             |
+| `AttributeError: module 'torch' has no attribute 'xpu'` khi `import diffusers` | Bạn đang dùng **diffusers ≥ 0.36** với **PyTorch 2.1**; hạ diffusers: `pip install "diffusers<0.36"` hoặc cài lại từ `requirements.txt`. |
+| `AttributeError: module 'torch.utils._pytree' has no attribute 'register_pytree_node'` | Transformers **≥ 4.49** bỏ fallback cho torch < 2.2; hạ: `pip install "transformers<4.49"` hoặc cài lại từ `requirements.txt`. |
 | Lỗi thiếu symbol / không tương thích `diffusers` | Cài `requirements.txt` trong đúng env `stylealigned` đã có `torch`.                                                                 |
 | Notebook không thấy token / cache                | Kernel phải là env đã set biến; thử `import os; print(os.environ.get("HF_TOKEN"), os.environ.get("HF_HUB_CACHE"))` trong một ô tạm. |
 | OOM khi generate                                 | Giảm batch, dùng offload/VAE slicing như trong `demo_stylealigned_sdxl.py` (tùy chỉnh cục bộ, không bắt buộc sửa upstream).         |
